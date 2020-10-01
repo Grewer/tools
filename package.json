@@ -10,10 +10,20 @@
   "dependencies": {
     "microbundle": "^0.12.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^4.6.0",
+    "size-limit": "^4.6.0"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "10 KB"
+    }
+  ],
   "scripts": {
     "build": "microbundle  --no-sourcemap",
     "dev": "microbundle watch",
+    "analyze": "size-limit --why",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

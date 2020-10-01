@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "ESNext",
+    "jsx": "preserve",
+    "strict": true,
+    "inlineSourceMap": false,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "noImplicitAny": false,
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./"
+  },
+  "exclude": [
+    "node_modules",
+    "package-lock.json",
+    "README.md"
+  ]
+}

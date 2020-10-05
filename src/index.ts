@@ -1,3 +1,4 @@
-type returnVal = (obj: { [key: string]: any }) => boolean
+import PropEq from './fn/PropEq'
+import Debounce from './fn/Debounce'
 
-export const propEq = (prop: string, value: number | string): returnVal => obj => obj[prop] === value
+export { PropEq, Debounce }

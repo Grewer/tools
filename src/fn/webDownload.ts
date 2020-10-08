@@ -1,52 +1,48 @@
 const _userAgent = navigator.userAgent.toLowerCase()
-const isChrome = _userAgent.indexOf('chrome') > -1;
-const isSafari = _userAgent.indexOf('safari') > -1;
-const isFireFox = _userAgent.indexOf('firefox') > -1;
-// @ts-ignore
-const isIE = !!window.ActiveXObject || "ActiveXObject" in window
+const isChrome = _userAgent.indexOf('chrome') > -1
+const isSafari = _userAgent.indexOf('safari') > -1
+const isFireFox = _userAgent.indexOf('firefox') > -1
 
-const WebDownload = function (sUrl) {
+const webDownload = function (sUrl) {
   if (/(iP)/g.test(navigator.userAgent)) {
-    return false;
+    return false
   }
 
   if (isChrome || isSafari || isFireFox) {
-    var link = document.createElement('a');
-    link.href = sUrl;
+    var link = document.createElement('a')
+    link.href = sUrl
     if (link.download !== undefined) {
-      link.download = sUrl.substring(sUrl.lastIndexOf('/') + 1, sUrl.length);
+      link.download = sUrl.substring(sUrl.lastIndexOf('/') + 1, sUrl.length)
     }
 
     if (document.createEvent) {
-      var e = document.createEvent('MouseEvents');
-      e.initEvent('click', true, true);
-      link.dispatchEvent(e);
-      return true;
+      var e = document.createEvent('MouseEvents')
+      e.initEvent('click', true, true)
+      link.dispatchEvent(e)
+      return true
     }
   }
 
-  if (isIE) {
-    const iframe = document.createElement('iframe');
+  if (!!(window as any).ActiveXObject || 'ActiveXObject' in window) {
+    const iframe = document.createElement('iframe')
     iframe.src = sUrl
     iframe.id = 'saveFileFrame'
     iframe.style.display = 'none'
     iframe.onload = function () {
-      // @ts-ignore
-      document.frames["saveFileFrame"].document.execCommand('saveAs')
-      // @ts-ignore
-      iframe.removeNode(true)
+      (document  as any).frames['saveFileFrame'].document.execCommand('saveAs')
+      (iframe as any).removeNode(true)
     }
     document.body.appendChild(iframe)
-    return true;
+    return true
   }
 
   if (sUrl.indexOf('?') === -1) {
-    sUrl += '?download';
+    sUrl += '?download'
   }
 
-  window.open(sUrl, '_self');
-  return true;
+  window.open(sUrl, '_self')
+  return true
 }
 
 
-export default WebDownload
+export default webDownload

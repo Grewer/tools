@@ -10,6 +10,10 @@
   "dependencies": {
     "microbundle": "^0.12.4"
   },
+  "files": [
+    "src",
+    "dist"
+  ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.6.0",
     "size-limit": "^4.6.0"
@@ -21,6 +25,7 @@
     }
   ],
   "scripts": {
+    "pub": "npm publish --access public",
     "build": "microbundle  --no-sourcemap",
     "dev": "microbundle watch",
     "analyze": "size-limit --why",

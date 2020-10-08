@@ -1,4 +1,19 @@
-import PropEq from './fn/PropEq'
-import Debounce from './fn/Debounce'
+import calculate from '../src/fn/calculate'
+import cleanObject from '../src/fn/cleanObject'
+import cookie from '../src/fn/cookie'
+import debounce from '../src/fn/debounce'
+import encryption from '../src/fn/encryption'
+import jsonParse from '../src/fn/jsonParse'
+import propEq from '../src/fn/propEq'
+import webCopy from '../src/fn/webCopy'
+import webDownload from '../src/fn/webDownload'
 
-export { PropEq, Debounce }
+export { cleanObject }
+export { calculate }
+export { cookie }
+export { debounce }
+export { encryption }
+export { jsonParse }
+export { propEq }
+export { webCopy }
+export { webDownload }

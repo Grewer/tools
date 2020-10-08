@@ -1,4 +1,4 @@
-const WebCopy = (copyValue): boolean => {
+const webCopy = (copyValue): boolean => {
   const input = document.createElement('input')
   document.body.appendChild(input)
   input.setAttribute('value', copyValue)
@@ -12,4 +12,4 @@ const WebCopy = (copyValue): boolean => {
   return false
 }
 
-export default WebCopy
+export default webCopy

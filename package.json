@@ -1,20 +1,14 @@
 {
   "name": "@grewer/tools",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "grewer's tools",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
-  "dependencies": {
-    "microbundle": "^0.12.4"
-  },
-  "files": [
-    "src",
-    "dist"
-  ],
   "devDependencies": {
+    "microbundle": "^0.12.4",
     "@size-limit/preset-small-lib": "^4.6.0",
     "size-limit": "^4.6.0"
   },
@@ -25,11 +19,10 @@
     }
   ],
   "scripts": {
-    "pub": "npm publish --access public",
-    "build": "microbundle  --no-sourcemap",
+    "pub": "rm -rf dist && microbundle  --no-sourcemap && npm config set registry https://registry.npmjs.org && npm publish --access public",
+    "build": "rm -rf dist && microbundle  --no-sourcemap",
     "dev": "microbundle watch",
-    "analyze": "size-limit --why",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "analyze": "size-limit --why"
   },
   "keywords": [
     "grewer"

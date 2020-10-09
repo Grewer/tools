@@ -29,7 +29,7 @@ const webDownload = function (sUrl) {
     iframe.id = 'saveFileFrame'
     iframe.style.display = 'none'
     iframe.onload = function () {
-      (document  as any).frames['saveFileFrame'].document.execCommand('saveAs')
+      (document as any).frames['saveFileFrame'].document.execCommand('saveAs')
       (iframe as any).removeNode(true)
     }
     document.body.appendChild(iframe)

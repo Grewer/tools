@@ -5,7 +5,7 @@
  * @returns {any}
  */
 
-function jsonParse (str:string, defaultValue = {}):object {
+function jsonParse(str: string, defaultValue = {}): object {
   try {
     return JSON.parse(str)
   } catch (e) {

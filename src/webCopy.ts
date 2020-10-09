@@ -1,4 +1,5 @@
 const webCopy = (copyValue): boolean => {
+  // eslint-disable-next-line no-undef
   const input = document.createElement('input')
   document.body.appendChild(input)
   input.setAttribute('value', copyValue)

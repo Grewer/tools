@@ -1,6 +1,6 @@
 {
   "name": "@grewer/tools",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "grewer's tools",
   "source": "index.ts",
   "main": "dist/index.js",
@@ -8,8 +8,9 @@
   "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "devDependencies": {
-    "microbundle": "^0.12.4",
+    "@grewer/eslint": "^0.1.0",
     "@size-limit/preset-small-lib": "^4.6.0",
+    "microbundle": "^0.12.4",
     "size-limit": "^4.6.0"
   },
   "size-limit": [
@@ -28,5 +29,18 @@
     "grewer"
   ],
   "author": "grewer",
-  "license": "ISC"
+  "license": "ISC",
+  "eslintConfig": {
+    "env": {
+      "browser": true
+    },
+    "extends": [
+      "./node_modules/@grewer/eslint"
+    ]
+  },
+  "eslintIgnore": [
+    "!.eslintrc.js",
+    "!.prettierrc.js"
+  ],
+  "prettier": "@grewer/eslint/.prettierrc.js"
 }

@@ -1,8 +1,8 @@
 {
   "name": "@grewer/tools",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "grewer's tools",
-  "source": "src/index.ts",
+  "source": "index.ts",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
   "unpkg": "dist/index.umd.js",

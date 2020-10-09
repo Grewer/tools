@@ -1,5 +1,4 @@
-dist/fn/
+dist/src/
 yarn.lock
-src/
 .idea/
 tsconfig.json

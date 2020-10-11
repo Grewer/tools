@@ -1,3 +1,4 @@
+import isEmpty from './src/isEmpty'
 import calculate from './src/calculate'
 import cleanObject from './src/cleanObject'
 import cookie from './src/cookie'
@@ -17,3 +18,4 @@ export { jsonParse }
 export { propEq }
 export { webCopy }
 export { webDownload }
+export { isEmpty }

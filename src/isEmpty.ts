@@ -2,14 +2,16 @@
  * isEmpty 函数  功能与 lodash 的类似,更加小巧  能区别大部分情况
  */
 
+// 精确整数最大为
 const MAX_SAFE_INTEGER = 9007199254740991
 
 function isLength(value) {
-  return typeof value === 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER
+  // 判断出 length 确实是一个数字
+  return typeof value === 'number' && value > -1 && value % 1 === 0 && value <= MAX_SAFE_INTEGER
 }
 
 function isArrayLike(value) {
-  return value != null && typeof value !== 'function' && isLength(value.length)
+  return typeof value !== 'function' && isLength(value.length)
 }
 
 const _toString = Object.prototype.toString
@@ -22,7 +24,7 @@ const _hasOwnProperty = Object.prototype.hasOwnProperty
 
 function isEmpty(value) {
   // 检测 null
-  if (value == null) {
+  if (value === null) {
     return true
   }
 

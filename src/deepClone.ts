@@ -12,22 +12,6 @@ function getTag(value) {
   return _toString.call(value)
 }
 
-/**
- * copy array
- * @param source
- * @param array
- */
-function copyArray(source, array) {
-  let index = -1
-  const { length } = source
-
-  array || (array = new Array(length))
-  while (++index < length) {
-    array[index] = source[index]
-  }
-  return array
-}
-
 const { hasOwnProperty: _hasOwnProperty } = Object.prototype
 
 function initCloneByTag(object, tag, isDeep) {
@@ -73,14 +57,18 @@ function initCloneByTag(object, tag, isDeep) {
 }
 
 function initCloneArray(array) {
+  // 初始化一个新的数组, 与原数组不同
   const { length } = array
   const result = new array.constructor(length)
 
   // Add properties assigned by `RegExp#exec`.
+  // 如果是正则 exec 的执行结果  ,如: /\d/.exec('asdsad1231')
+  // array.index 有这个值
   if (length && typeof array[0] === 'string' && _hasOwnProperty.call(array, 'index')) {
     result.index = array.index
     result.input = array.input
   }
+  // 返回一个新数组  内存与原数组不同
   return result
 }
 
@@ -102,26 +90,26 @@ function deepClone(value, bitmask, customizer, key, object, stack) {
   const isArr = Array.isArray(value)
   const tag = getTag(value)
 
-  // 如果是数组 就直接深拷贝数组
+  // 到这一步 可以确定的几种  数组  对象(包括正常对象和 Date, 正则, Map, Set ,arrayBuffer 类)  函数
+  // 如果是数组 则初始化出一个新数组
   if (isArr) {
     result = initCloneArray(value)
-  }
-
-  const isFunc = typeof value === 'function'
-
-  if (isBuffer(value)) {
-    return cloneBuffer(value, isDeep)
-  }
-  if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
-    result = isFlat || isFunc ? {} : initCloneObject(value)
-    if (!isDeep) {
-      return isFlat ? copySymbolsIn(value, copyObject(value, keysIn(value), result)) : copySymbols(value, Object.assign(result, value))
-    }
   } else {
-    if (isFunc || !cloneableTags[tag]) {
-      return object ? value : {}
+    const isFunc = typeof value === 'function'
+
+    // buffer 类, 前端没有 buffer , node 环境有, 暂时可以忽略
+
+    if (tag === objectTag || tag === argsTag || (isFunc && !object)) {
+      result = isFlat || isFunc ? {} : initCloneObject(value)
+      if (!isDeep) {
+        return isFlat ? copySymbolsIn(value, copyObject(value, keysIn(value), result)) : copySymbols(value, Object.assign(result, value))
+      }
+    } else {
+      if (isFunc || !cloneableTags[tag]) {
+        return object ? value : {}
+      }
+      result = initCloneByTag(value, tag, isDeep)
     }
-    result = initCloneByTag(value, tag, isDeep)
   }
 
   // Check for circular references and return its corresponding clone.

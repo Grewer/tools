@@ -12,7 +12,48 @@ function getTag(value) {
   return _toString.call(value)
 }
 
+/** `Object#toString` result references. */
+const argsTag = '[object Arguments]'
+const arrayTag = '[object Array]'
+const boolTag = '[object Boolean]'
+const dateTag = '[object Date]'
+const errorTag = '[object Error]'
+const mapTag = '[object Map]'
+const numberTag = '[object Number]'
+const objectTag = '[object Object]'
+const regexpTag = '[object RegExp]'
+const setTag = '[object Set]'
+const stringTag = '[object String]'
+const symbolTag = '[object Symbol]'
+const weakMapTag = '[object WeakMap]'
+
+// buffer array
+const arrayBufferTag = '[object ArrayBuffer]'
+const dataViewTag = '[object DataView]'
+const float32Tag = '[object Float32Array]'
+const float64Tag = '[object Float64Array]'
+const int8Tag = '[object Int8Array]'
+const int16Tag = '[object Int16Array]'
+const int32Tag = '[object Int32Array]'
+const uint8Tag = '[object Uint8Array]'
+const uint8ClampedTag = '[object Uint8ClampedArray]'
+const uint16Tag = '[object Uint16Array]'
+const uint32Tag = '[object Uint32Array]'
+
 const { hasOwnProperty: _hasOwnProperty } = Object.prototype
+
+const objectProto = Object.prototype
+
+function isPrototype(value) {
+  const Ctor = value && value.constructor
+  const proto = (typeof Ctor === 'function' && Ctor.prototype) || objectProto
+
+  return value === proto
+}
+
+function initCloneObject(object) {
+  return typeof object.constructor === 'function' && !isPrototype(object) ? Object.create(Object.getPrototypeOf(object)) : {}
+}
 
 function initCloneByTag(object, tag, isDeep) {
   const Ctor = object.constructor
@@ -72,7 +113,7 @@ function initCloneArray(array) {
   return result
 }
 
-function deepClone(value, bitmask, customizer, key, object, stack) {
+function deepClone(value, bitmask, key, object, stack) {
   let result
 
   const isDeep = true // 深拷贝
@@ -90,20 +131,19 @@ function deepClone(value, bitmask, customizer, key, object, stack) {
   const isArr = Array.isArray(value)
   const tag = getTag(value)
 
-  // 到这一步 可以确定的几种  数组  对象(包括正常对象和 Date, 正则, Map, Set ,arrayBuffer 类)  函数
+  // 到这一步 可以确定的几种  数组  对象(包括正常对象和 Date, 正则, Map, Set ,arrayBuffer 类,Error 等等)  函数
   // 如果是数组 则初始化出一个新数组
   if (isArr) {
     result = initCloneArray(value)
   } else {
     const isFunc = typeof value === 'function'
 
-    // buffer 类, 前端没有 buffer , node 环境有, 暂时可以忽略
+    // buffer 类, 前端没有 buffer , node 环境有, 这里可以忽略
 
-    if (tag === objectTag || tag === argsTag || (isFunc && !object)) {
+    // 如果是普通 object  argument 和 函数
+    if (tag === objectTag || tag === argsTag || isFunc) {
       result = isFlat || isFunc ? {} : initCloneObject(value)
-      if (!isDeep) {
         return isFlat ? copySymbolsIn(value, copyObject(value, keysIn(value), result)) : copySymbols(value, Object.assign(result, value))
-      }
     } else {
       if (isFunc || !cloneableTags[tag]) {
         return object ? value : {}
@@ -113,23 +153,25 @@ function deepClone(value, bitmask, customizer, key, object, stack) {
   }
 
   // Check for circular references and return its corresponding clone.
-  stack || (stack = new Stack())
-  const stacked = stack.get(value)
-  if (stacked) {
-    return stacked
-  }
-  stack.set(value, result)
+  // stack || (stack = new Stack())
+  // const stacked = stack.get(value)
+  // if (stacked) {
+  //   return stacked
+  // }
+  // stack.set(value, result)
+  // 这是一个自定义的栈  这里先不使用它
+
 
   if (tag == mapTag) {
     value.forEach((subValue, key) => {
-      result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack))
+      result.set(key, baseClone(subValue, bitmask, key, value, stack))
     })
     return result
   }
 
   if (tag == setTag) {
     value.forEach(subValue => {
-      result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack))
+      result.add(baseClone(subValue, bitmask, subValue, value, stack))
     })
     return result
   }
@@ -147,7 +189,7 @@ function deepClone(value, bitmask, customizer, key, object, stack) {
       subValue = value[key]
     }
     // Recursively populate clone (susceptible to call stack limits).
-    assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack))
+    assignValue(result, key, baseClone(subValue, bitmask, key, value, stack))
   })
   return result
 }

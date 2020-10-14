@@ -113,12 +113,8 @@ function initCloneArray(array) {
   return result
 }
 
-function deepClone(value, bitmask, key, object, stack) {
+function deepClone(value, key, object, stack) {
   let result
-
-  const isDeep = true // 深拷贝
-  const isFlat = true // 展开继承的属性
-  const isFull = true // 是否拷贝 symbol
 
   // 如果不是 object 直接返回值
   // 如果 value 类型为 object 或 function 则通过
@@ -142,15 +138,15 @@ function deepClone(value, bitmask, key, object, stack) {
 
     // 如果是普通 object  argument 和 函数
     if (tag === objectTag || tag === argsTag || isFunc) {
-      result = isFlat || isFunc ? {} : initCloneObject(value)
-        return isFlat ? copySymbolsIn(value, copyObject(value, keysIn(value), result)) : copySymbols(value, Object.assign(result, value))
-    } else {
-      if (isFunc || !cloneableTags[tag]) {
-        return object ? value : {}
-      }
-      result = initCloneByTag(value, tag, isDeep)
+      result = isFunc ? {} : initCloneObject(value)
+      return copySymbols(value, Object.assign(result, value))
     }
+    if (isFunc || !cloneableTags[tag]) {
+      return object ? value : {}
+    }
+    result = initCloneByTag(value, tag, true)
   }
+  // 到这里初始化出一个新的存储空间 来存储数据
 
   // Check for circular references and return its corresponding clone.
   // stack || (stack = new Stack())
@@ -159,19 +155,19 @@ function deepClone(value, bitmask, key, object, stack) {
   //   return stacked
   // }
   // stack.set(value, result)
-  // 这是一个自定义的栈  这里先不使用它
+  // 这是一个自定义的栈 类似于 map  这里先不使用它
 
-
-  if (tag == mapTag) {
-    value.forEach((subValue, key) => {
-      result.set(key, baseClone(subValue, bitmask, key, value, stack))
+  // 如果是 Map, 循环赋值
+  if (tag === mapTag) {
+    value.forEach((subValue, mapKey) => {
+      result.set(mapKey, deepClone(subValue, mapKey, value, stack))
     })
     return result
   }
 
-  if (tag == setTag) {
+  if (tag === setTag) {
     value.forEach(subValue => {
-      result.add(baseClone(subValue, bitmask, subValue, value, stack))
+      result.add(deepClone(subValue, subValue, value, stack))
     })
     return result
   }
@@ -180,7 +176,7 @@ function deepClone(value, bitmask, key, object, stack) {
     return result
   }
 
-  const keysFunc = isFull ? (isFlat ? getAllKeysIn : getAllKeys) : isFlat ? keysIn : keys
+  const keysFunc = getAllKeys
 
   const props = isArr ? undefined : keysFunc(value)
   arrayEach(props || value, (subValue, key) => {
@@ -189,7 +185,7 @@ function deepClone(value, bitmask, key, object, stack) {
       subValue = value[key]
     }
     // Recursively populate clone (susceptible to call stack limits).
-    assignValue(result, key, baseClone(subValue, bitmask, key, value, stack))
+    assignValue(result, key, deepClone(subValue, key, value, stack))
   })
   return result
 }

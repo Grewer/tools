@@ -143,7 +143,9 @@ function deepClone(value) {
     return value
   }
 
-  if (Array.isArray(value)) {
+  const isArr = Array.isArray(value)
+
+  if (isArr) {
     result = initCloneArray(value)
   }
 
@@ -158,6 +160,43 @@ function deepClone(value) {
   }
 
   // 复制值
+
+  // 这是 lodash 用来缓存值优化, 可以使用 Map 代替
+  //  stack || (stack = new Stack)
+  //   const stacked = stack.get(value)
+  //   if (stacked) {
+  //     return stacked
+  //   }
+  //   stack.set(value, result)
+
+  if (tag === mapTag) {
+    value.forEach((subValue, key) => {
+      result.set(key, deepClone(subValue))
+    })
+    return result
+  }
+
+  if (tag === setTag) {
+    value.forEach(subValue => {
+      result.add(deepClone(subValue))
+    })
+    return result
+  }
+
+  // if (isTypedArray(value)) {
+  //   return result
+  // } todo
+
+  // const props = isArr ? undefined : getAllKeys(value)
+  //
+  // arrayEach(props || value, (subValue, key) => {
+  //   if (props) {
+  //     key = subValue
+  //     subValue = value[key]
+  //   }
+  //   // Recursively populate clone (susceptible to call stack limits).
+  //   assignValue(result, key, deepClone(subValue))
+  // })
 
   return result
 }

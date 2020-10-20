@@ -4,6 +4,148 @@ function getTag(value) {
   return _toString.call(value)
 }
 
+function isObjectLike(value) {
+  return typeof value === 'object' && value !== null
+}
+
+function isArguments(value) {
+  return isObjectLike(value) && getTag(value) == '[object Arguments]'
+}
+
+const freeExports = typeof exports === 'object' && exports !== null && !exports.nodeType && exports
+
+const freeModule = freeExports && typeof module === 'object' && module !== null && !module.nodeType && module
+
+const moduleExports = freeModule && freeModule.exports === freeExports
+
+// buffer 是 node 环境变量, 等会删删除
+const Buffer = moduleExports ? Buffer : undefined
+
+const nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined
+
+const isBuffer = nativeIsBuffer || (() => false)
+
+const reIsUint = /^(?:0|[1-9]\d*)$/
+
+function isIndex(value, length) {
+  const type = typeof value
+  length = length == null ? MAX_SAFE_INTEGER : length
+
+  return !!length && (type === 'number' || (type !== 'symbol' && reIsUint.test(value))) && value > -1 && value % 1 == 0 && value < length
+}
+
+function arrayLikeKeys(value, inherited) {
+  const isArr = Array.isArray(value)
+  const isArg = !isArr && isArguments(value)
+  const isBuff = !isArr && !isArg && isBuffer(value)
+  const isType = !isArr && !isArg && !isBuff && isTypedArray(value)
+  const skipIndexes = isArr || isArg || isBuff || isType
+  const { length } = value
+  const result = new Array(skipIndexes ? length : 0)
+  let index = skipIndexes ? -1 : length
+  while (++index < length) {
+    result[index] = `${index}`
+  }
+  for (const key in value) {
+    if (
+      (inherited || _hasOwnProperty.call(value, key)) &&
+      !(
+        skipIndexes &&
+        // Safari 9 has enumerable `arguments.length` in strict mode.
+        (key === 'length' ||
+          // Skip index properties.
+          isIndex(key, length))
+      )
+    ) {
+      result.push(key)
+    }
+  }
+  return result
+}
+
+/** Used to match `toStringTag` values of typed arrays. */
+const reTypedTag = /^\[object (?:Float(?:32|64)|(?:Int|Uint)(?:8|16|32)|Uint8Clamped)Array\]$/
+
+/* Node.js helper references. */
+
+const isTypedArray = value => isObjectLike(value) && reTypedTag.test(getTag(value))
+
+const MAX_SAFE_INTEGER = 9007199254740991
+
+function isLength(value) {
+  return typeof value === 'number' && value > -1 && value % 1 === 0 && value <= MAX_SAFE_INTEGER
+}
+
+function arrayEach(array, iteratee) {
+  let index = -1
+  const { length } = array
+
+  while (++index < length) {
+    if (iteratee(array[index], index, array) === false) {
+      break
+    }
+  }
+  return array
+}
+
+function isArrayLike(value) {
+  return value != null && typeof value !== 'function' && isLength(value.length)
+}
+
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : Object.keys(Object(object))
+}
+
+const { propertyIsEnumerable } = Object.prototype
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+const nativeGetSymbols = Object.getOwnPropertySymbols
+
+function getSymbols(object) {
+  if (object == null) {
+    return []
+  }
+  object = Object(object)
+  return nativeGetSymbols(object).filter(symbol => propertyIsEnumerable.call(object, symbol))
+}
+
+function getAllKeys(object) {
+  const result = keys(object)
+  if (!Array.isArray(object)) {
+    result.push(...getSymbols(object))
+  }
+  return result
+}
+
+function baseAssignValue(object, key, value) {
+  if (key === '__proto__') {
+    Object.defineProperty(object, key, {
+      configurable: true,
+      enumerable: true,
+      value,
+      writable: true,
+    })
+  } else {
+    object[key] = value
+  }
+}
+
+function eq(value, other) {
+  return value === other || (value !== value && other !== other)
+}
+
+function assignValue(object, key, value) {
+  const objValue = object[key]
+
+  if (!(_hasOwnProperty.call(object, key) && eq(objValue, value))) {
+    if (value !== 0 || 1 / value === 1 / objValue) {
+      baseAssignValue(object, key, value)
+    }
+  } else if (value === undefined && !(key in object)) {
+    baseAssignValue(object, key, value)
+  }
+}
+
 /** `Object#toString` result references. */
 const argsTag = '[object Arguments]'
 const arrayTag = '[object Array]'
@@ -187,16 +329,16 @@ function deepClone(value) {
   //   return result
   // } todo
 
-  // const props = isArr ? undefined : getAllKeys(value)
-  //
-  // arrayEach(props || value, (subValue, key) => {
-  //   if (props) {
-  //     key = subValue
-  //     subValue = value[key]
-  //   }
-  //   // Recursively populate clone (susceptible to call stack limits).
-  //   assignValue(result, key, deepClone(subValue))
-  // })
+  const props = isArr ? undefined : getAllKeys(value)
+
+  arrayEach(props || value, (subValue, key) => {
+    if (props) {
+      key = subValue
+      subValue = value[key]
+    }
+    // Recursively populate clone (susceptible to call stack limits).
+    assignValue(result, key, deepClone(subValue))
+  })
 
   return result
 }

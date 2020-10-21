@@ -1,4 +1,5 @@
 const _toString = Object.prototype.toString
+const reIsUint = /^(?:0|[1-9]\d*)$/
 
 function getTag(value) {
   return _toString.call(value)
@@ -9,52 +10,36 @@ function isObjectLike(value) {
 }
 
 function isArguments(value) {
-  return isObjectLike(value) && getTag(value) == '[object Arguments]'
+  return isObjectLike(value) && getTag(value) === '[object Arguments]'
 }
-
-const freeExports = typeof exports === 'object' && exports !== null && !exports.nodeType && exports
-
-const freeModule = freeExports && typeof module === 'object' && module !== null && !module.nodeType && module
-
-const moduleExports = freeModule && freeModule.exports === freeExports
-
-// buffer 是 node 环境变量, 等会删删除
-const Buffer = moduleExports ? Buffer : undefined
-
-const nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined
-
-const isBuffer = nativeIsBuffer || (() => false)
-
-const reIsUint = /^(?:0|[1-9]\d*)$/
 
 function isIndex(value, length) {
   const type = typeof value
-  length = length == null ? MAX_SAFE_INTEGER : length
+  const _length = length == null ? MAX_SAFE_INTEGER : length
 
-  return !!length && (type === 'number' || (type !== 'symbol' && reIsUint.test(value))) && value > -1 && value % 1 == 0 && value < length
+  return !!_length && (type === 'number' || (type !== 'symbol' && reIsUint.test(value))) && value > -1 && value % 1 === 0 && value < _length
 }
 
-function arrayLikeKeys(value, inherited) {
+function arrayLikeKeys(value) {
   const isArr = Array.isArray(value)
   const isArg = !isArr && isArguments(value)
-  const isBuff = !isArr && !isArg && isBuffer(value)
-  const isType = !isArr && !isArg && !isBuff && isTypedArray(value)
-  const skipIndexes = isArr || isArg || isBuff || isType
-  const { length } = value
-  const result = new Array(skipIndexes ? length : 0)
-  let index = skipIndexes ? -1 : length
-  while (++index < length) {
+  const isType = !isArr && !isArg && isTypedArray(value)
+  const skipIndexes = isArr || isArg || isType
+  const _length = value.length
+  const result = new Array(skipIndexes ? _length : 0)
+  let index = skipIndexes ? -1 : _length
+  while (++index < _length) {
     result[index] = `${index}`
   }
   for (const key in value) {
     if (
-      (inherited || _hasOwnProperty.call(value, key)) &&
+      _hasOwnProperty.call(value, key) &&
       !(
         skipIndexes &&
         // Safari 9 has enumerable `arguments.length` in strict mode.
         (key === 'length' ||
           // Skip index properties.
-          isIndex(key, length))
+          isIndex(key, _length))
       )
     ) {
       result.push(key)
@@ -78,9 +63,9 @@ function isLength(value) {
 
 function arrayEach(array, iteratee) {
   let index = -1
-  const { length } = array
+  const _length = array.length
 
-  while (++index < length) {
+  while (++index < _length) {
     if (iteratee(array[index], index, array) === false) {
       break
     }
@@ -96,17 +81,15 @@ function keys(object) {
   return isArrayLike(object) ? arrayLikeKeys(object) : Object.keys(Object(object))
 }
 
-const { propertyIsEnumerable } = Object.prototype
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
 const nativeGetSymbols = Object.getOwnPropertySymbols
 
 function getSymbols(object) {
   if (object == null) {
     return []
   }
-  object = Object(object)
-  return nativeGetSymbols(object).filter(symbol => propertyIsEnumerable.call(object, symbol))
+  const _object = Object(object)
+  const _propertyIsEnumerable = Object.prototype.propertyIsEnumerable
+  return nativeGetSymbols(_object).filter(symbol => _propertyIsEnumerable.call(_object, symbol))
 }
 
 function getAllKeys(object) {
@@ -131,6 +114,7 @@ function baseAssignValue(object, key, value) {
 }
 
 function eq(value, other) {
+  // eslint-disable-next-line no-self-compare
   return value === other || (value !== value && other !== other)
 }
 
@@ -325,15 +309,17 @@ function deepClone(value) {
     return result
   }
 
-  // if (isTypedArray(value)) {
-  //   return result
-  // } todo
+  if (isTypedArray(value)) {
+    return result
+  }
 
-  const props = isArr ? undefined : getAllKeys(value)
+  const props = isArr ? value : getAllKeys(value)
 
   arrayEach(props || value, (subValue, key) => {
     if (props) {
+      // eslint-disable-next-line no-param-reassign
       key = subValue
+      // eslint-disable-next-line no-param-reassign
       subValue = value[key]
     }
     // Recursively populate clone (susceptible to call stack limits).
@@ -342,5 +328,7 @@ function deepClone(value) {
 
   return result
 }
+
+// clone fn 未完成
 
 export default deepClone

@@ -95,6 +95,7 @@ function getSymbols(object) {
 function getAllKeys(object) {
   const result = keys(object)
   if (!Array.isArray(object)) {
+    // @ts-ignore
     result.push(...getSymbols(object))
   }
   return result
@@ -279,8 +280,12 @@ function deepClone(value) {
   // 先建立存储区域
   const isFunc = typeof value === 'function'
   const tag = getTag(value)
+
   if (tag === objectTag || tag === argsTag) {
-    result = isFunc ? {} : initCloneObject(value)
+    result = initCloneObject(value)
+  } else if (isFunc) {
+    // eslint-disable-next-line no-eval
+    result = eval(`${value.toString()}`)
   } else {
     result = initCloneByTag(value, tag)
   }
@@ -322,13 +327,10 @@ function deepClone(value) {
       // eslint-disable-next-line no-param-reassign
       subValue = value[key]
     }
-    // Recursively populate clone (susceptible to call stack limits).
     assignValue(result, key, deepClone(subValue))
   })
 
   return result
 }
-
-// clone fn 未完成
 
 export default deepClone

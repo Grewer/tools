@@ -31,6 +31,7 @@ function arrayLikeKeys(value) {
   while (++index < _length) {
     result[index] = `${index}`
   }
+  // eslint-disable-next-line no-restricted-syntax
   for (const key in value) {
     if (
       _hasOwnProperty.call(value, key) &&
@@ -48,10 +49,7 @@ function arrayLikeKeys(value) {
   return result
 }
 
-/** Used to match `toStringTag` values of typed arrays. */
 const reTypedTag = /^\[object (?:Float(?:32|64)|(?:Int|Uint)(?:8|16|32)|Uint8Clamped)Array\]$/
-
-/* Node.js helper references. */
 
 const isTypedArray = value => isObjectLike(value) && reTypedTag.test(getTag(value))
 
@@ -84,7 +82,7 @@ function keys(object) {
 const nativeGetSymbols = Object.getOwnPropertySymbols
 
 function getSymbols(object) {
-  if (object == null) {
+  if (object === null) {
     return []
   }
   const _object = Object(object)
@@ -94,10 +92,9 @@ function getSymbols(object) {
 
 function getAllKeys(object) {
   const result = keys(object)
-  if (!Array.isArray(object)) {
-    // @ts-ignore
-    result.push(...getSymbols(object))
-  }
+  // @ts-ignore
+  result.push(...getSymbols(object))
+  // object 正常键 + Symbols
   return result
 }
 
@@ -300,6 +297,7 @@ function deepClone(value) {
   //   }
   //   stack.set(value, result)
 
+  // 如果是 Map 遍历每一个值 设置值
   if (tag === mapTag) {
     value.forEach((subValue, key) => {
       result.set(key, deepClone(subValue))
@@ -307,6 +305,7 @@ function deepClone(value) {
     return result
   }
 
+  // 如果是 Set 同理
   if (tag === setTag) {
     value.forEach(subValue => {
       result.add(deepClone(subValue))
@@ -314,10 +313,12 @@ function deepClone(value) {
     return result
   }
 
+  // 检查是不是 buffer 数组
   if (isTypedArray(value)) {
     return result
   }
 
+  // 获取 value 的所有键值
   const props = isArr ? value : getAllKeys(value)
 
   arrayEach(props || value, (subValue, key) => {
@@ -327,6 +328,7 @@ function deepClone(value) {
       // eslint-disable-next-line no-param-reassign
       subValue = value[key]
     }
+    // 设置值
     assignValue(result, key, deepClone(subValue))
   })
 

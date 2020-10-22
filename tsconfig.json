@@ -4,7 +4,6 @@
     "module": "ESNext",
     "jsx": "preserve",
     "strict": true,
-    "lib": ["ESNext","ES2018","ES2019"],
     "inlineSourceMap": false,
     "alwaysStrict": true,
     "esModuleInterop": true,

@@ -8,6 +8,7 @@ import jsonParse from './src/jsonParse'
 import propEq from './src/propEq'
 import webCopy from './src/webCopy'
 import webDownload from './src/webDownload'
+import deepClone from './src/deepClone'
 
 export { cleanObject }
 export { calculate }
@@ -19,3 +20,4 @@ export { propEq }
 export { webCopy }
 export { webDownload }
 export { isEmpty }
+export { deepClone }

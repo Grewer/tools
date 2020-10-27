@@ -1,6 +1,6 @@
 {
   "name": "@grewer/tools",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "grewer's tools",
   "source": "index.ts",
   "main": "dist/index.js",
